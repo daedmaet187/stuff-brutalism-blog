@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, Request, Optional } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PostsService } from './posts.service';
 import { Prisma } from '@prisma/client';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('api/posts')
 export class PostsController {
@@ -14,8 +15,10 @@ export class PostsController {
   }
 
   @Get()
-  findAll(@Query('published') published?: string) {
-    return this.postsService.findAll(published === 'true');
+  findAll(@Query('all') all?: string) {
+    // ?all=true only works if caller passes it explicitly (dashboard does)
+    const publishedOnly = all !== 'true';
+    return this.postsService.findAll(publishedOnly);
   }
 
   @Get(':slug')
